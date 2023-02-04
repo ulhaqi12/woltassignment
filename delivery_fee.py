@@ -43,7 +43,11 @@ def distance_surcharge(distance):
         distance_fee += 200
     elif distance > 1000:
         distance_fee += 200
-        distance_fee += (((distance - 1000) // 500) + 1) * 100
+
+        extra = (distance - 1000) // 500 + 1
+        if (distance - 1000) % 500 == 0:
+            extra -= 1
+        distance_fee += extra * 100
 
     return distance_fee
 
@@ -60,24 +64,23 @@ def item_count_surcharge(number_of_items):
         item_count_fee += ((number_of_items - 4) * 50)
 
     if number_of_items >= 12:
-        item_count_fee += 1.2 * item_count_fee
+        item_count_fee += 120
 
     return item_count_fee
 
 
-def friday_peak_surcharge(order_time):
+def is_friday_peak(order_time):
     """
     Function calculates the additional fee if the order is placed at peak times on Friday.
     :param order_time: Date and time of order
     :return: Surcharge if order is placed in peak time on Friday.
     """
-    time_fee = 0
 
     date = parser.parse(order_time)
 
     if date.weekday() == 4 and is_time_between(time(15, 00), time(19, 00), date.time()):
-        time_fee = 1.2 * time_fee
-    return time_fee
+        return True
+    return False
 
 
 def calculate_delivery_fee(api_input):
@@ -89,6 +92,7 @@ def calculate_delivery_fee(api_input):
         total_fee += small_order_surcharge(api_input['cart_value'])
         total_fee += distance_surcharge(api_input['delivery_distance'])
         total_fee += item_count_surcharge(api_input['number_of_items'])
-        total_fee += friday_peak_surcharge(api_input['time'])
+        if is_friday_peak(api_input['time']):
+            total_fee = total_fee * 1.2
 
     return min(1500, total_fee)
