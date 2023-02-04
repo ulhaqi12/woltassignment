@@ -3,6 +3,14 @@ from dateutil import parser
 
 
 def is_time_between(begin_time, end_time, check_time=None):
+    """
+    Function calculates that a given time is in provided range that is (begin_time, end_time).
+    If time is not provided it checks it for current time.
+    :param begin_time: start time of window.
+    :param end_time: end time of window.
+    :param check_time: time need to be checked if it lies in the window.
+    :return: True if time is in window else False
+    """
     # If check time is not given, default to current UTC time
     check_time = check_time or datetime.utcnow().time()
     if begin_time < end_time:
@@ -11,46 +19,78 @@ def is_time_between(begin_time, end_time, check_time=None):
         return check_time >= begin_time or check_time <= end_time
 
 
-api_input = {"cart_value": 790, "delivery_distance": 2235, "number_of_items": 4, "time": "2021-10-12T13:00:00Z"}
+def small_order_surcharge(cart_value):
+    """
+    Function calculates the fee on smaller orders based on Price.
+    :param cart_value: Price of total items currently in the cart
+    :return: fee for small order
+    """
 
-cart_value = api_input['cart_value'] / 100
+    if cart_value < 1000:
+        return 1000 - cart_value
+    return 0
 
 
-total_fee = 0
-free_delivery = False
+def distance_surcharge(distance):
+    """
+    Function calculates the fee based on the distance of delivery.
+    :param distance: distance of the delivery
+    :return: fee based on the distance for delivery
+    """
 
-if cart_value > 100:
-    free_delivery = True
-    total_fee = 0
-else:
-    if cart_value < 10:
-        total_fee += 10 - cart_value
+    distance_fee = 0
+    if distance <= 1000:
+        distance_fee += 200
+    elif distance > 1000:
+        distance_fee += 200
+        distance_fee += (((distance - 1000) // 500) + 1) * 100
 
-    print('Fee:', total_fee)
+    return distance_fee
 
-    if api_input['delivery_distance'] <= 1000:
-        total_fee += 2
-    elif api_input['delivery_distance'] > 1000:
-        total_fee += 2
-        total_fee += ((api_input['delivery_distance'] - 1000) // 500) + 1
-    print('Fee:', total_fee)
 
-    if api_input['number_of_items'] >= 5:
-        total_fee += ((api_input['number_of_items'] - 4) * 50) / 100
-    print('Fee:', total_fee)
+def item_count_surcharge(number_of_items):
+    """
+    Function calculates the increment in delivery fee based on the count of items.
+    :param number_of_items: Number of items in the cart
+    :return: Fee based on the number of items in the cart
+    """
 
-    if api_input['number_of_items'] >= 12:
-        total_fee += 1.2 * total_fee
-    print('Fee:', total_fee)
+    item_count_fee = 0
+    if number_of_items >= 5:
+        item_count_fee += ((number_of_items - 4) * 50)
 
-    date = parser.parse(api_input['time'])
+    if number_of_items >= 12:
+        item_count_fee += 1.2 * item_count_fee
+
+    return item_count_fee
+
+
+def friday_peak_surcharge(order_time):
+    """
+    Function calculates the additional fee if the order is placed at peak times on Friday.
+    :param order_time: Date and time of order
+    :return: Surcharge if order is placed in peak time on Friday.
+    """
+    time_fee = 0
+
+    date = parser.parse(order_time)
 
     if date.weekday() == 4 and is_time_between(time(15, 00), time(19, 00), date.time()):
-        print("Yes, It's Friday Peak")
-        total_fee = 1.2 * total_fee
-    print('Fee:', total_fee)
+        time_fee = 1.2 * time_fee
+    return time_fee
 
-if not free_delivery:
-    total_fee = min(15, total_fee)
 
-print(total_fee * 100)
+api_input = {"cart_value": 790, "delivery_distance": 2235, "number_of_items": 4, "time": "2021-10-12T13:00:00Z"}
+
+total_fee = 0
+
+if api_input['cart_value'] > 10000:
+    total_fee = 0
+else:
+    total_fee += small_order_surcharge(api_input['cart_value'])
+    total_fee += distance_surcharge(api_input['delivery_distance'])
+    total_fee += item_count_surcharge(api_input['number_of_items'])
+    total_fee += friday_peak_surcharge(api_input['time'])
+
+total_fee = min(1500, total_fee)
+print(total_fee)
