@@ -80,17 +80,15 @@ def friday_peak_surcharge(order_time):
     return time_fee
 
 
-api_input = {"cart_value": 790, "delivery_distance": 2235, "number_of_items": 4, "time": "2021-10-12T13:00:00Z"}
-
-total_fee = 0
-
-if api_input['cart_value'] > 10000:
+def calculate_delivery_fee(api_input):
     total_fee = 0
-else:
-    total_fee += small_order_surcharge(api_input['cart_value'])
-    total_fee += distance_surcharge(api_input['delivery_distance'])
-    total_fee += item_count_surcharge(api_input['number_of_items'])
-    total_fee += friday_peak_surcharge(api_input['time'])
 
-total_fee = min(1500, total_fee)
-print(total_fee)
+    if api_input['cart_value'] > 10000:
+        total_fee = 0
+    else:
+        total_fee += small_order_surcharge(api_input['cart_value'])
+        total_fee += distance_surcharge(api_input['delivery_distance'])
+        total_fee += item_count_surcharge(api_input['number_of_items'])
+        total_fee += friday_peak_surcharge(api_input['time'])
+
+    return min(1500, total_fee)
