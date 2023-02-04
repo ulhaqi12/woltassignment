@@ -12,7 +12,12 @@ After installing Python 3.9 or higher and pulling this repository, Create a virt
 $ python3 -m venv .wolt
 ```
 
-A virtual environment named '.wolt' will be created in your current working directory. To install all the required packages. Run the following command.
+A virtual environment named '.wolt' will be created in your current working directory.
+Activate the environment using following command.
+```angular2html
+$ source .wolt/bin/activate
+```
+Virtual Environment will be activated. To install all the required packages. Run the following command.
 
 ```
 $ pip install -r requirements.txt
