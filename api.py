@@ -1,4 +1,4 @@
-from delivery_fee import calculate_delivery_fee
+from delivery_fee import DeliveryFee
 from flask import Flask, request, jsonify
 
 
@@ -9,7 +9,7 @@ app = Flask(__name__)
 def delivery():
 
     api_input = request.json
-    deliver_fee = {"delivery_fee": calculate_delivery_fee(api_input)}
+    deliver_fee = {"delivery_fee": DeliveryFee.calculate_delivery_fee(api_input)}
     return jsonify(deliver_fee)
 
 
