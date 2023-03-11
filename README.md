@@ -1,6 +1,6 @@
 # Wolt Assignment for Summer Internship 2023
 
-This is a private repository containing the solution of Assignment provided by Wolt for Engineering Intern in Summer 2023.
+This repository contains the solution of Assignment provided by Wolt for Engineering Intern in Summer 2023.
 
 Python 3.9 or higher is required. More specifically this code was written in environment having Python 3.9.15
 
